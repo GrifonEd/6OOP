@@ -35,6 +35,7 @@ namespace Лаба_6_пробник
             public int R = 60;
             public Color color;
             public int x, y;
+            public bool choose=false;
             public bool narisovana = true;
             public virtual string Class_Name()
             {
@@ -141,23 +142,47 @@ namespace Лаба_6_пробник
                     storage.objects[kolvo_elem].x = 711- 2*storage.objects[kolvo_elem].R;
                 if (storage.objects[kolvo_elem].x  < 0)
                     storage.objects[kolvo_elem].x =  0;
+               //Доработать if(storage.objects[kolvo_elem].x < 0 && storage.objects[kolvo_elem].x + 2 * storage.objects[kolvo_elem].R > 711)
+
                 if (storage.objects[kolvo_elem].y + 2*storage.objects[kolvo_elem].R> 420)
                     storage.objects[kolvo_elem].y = 420- 2*storage.objects[kolvo_elem].R;
                 if (storage.objects[kolvo_elem].y < 0)
                     storage.objects[kolvo_elem].y = 0;
                 Pen pen = new Pen(storage.objects[kolvo_elem].color, 4);
+
+                Pen pen1 = new Pen(current_color, 10);
                 if (storage.objects[kolvo_elem].Class_Name() == "CCircle")
+                {
+                    if (storage.objects[kolvo_elem].choose == true)
+                    {
+                        picture.CreateGraphics().DrawEllipse(pen1, storage.objects[kolvo_elem].x+ storage.objects[kolvo_elem].R, storage.objects[kolvo_elem].y+ storage.objects[kolvo_elem].R, 1, 1);
+                        picture.CreateGraphics().DrawEllipse(pen1, storage.objects[kolvo_elem].x, storage.objects[kolvo_elem].y, storage.objects[kolvo_elem].R * 2, storage.objects[kolvo_elem].R * 2);
+                        if(storage.objects[kolvo_elem].color==selected_color)
+                            picture.CreateGraphics().DrawEllipse(pen, storage.objects[kolvo_elem].x, storage.objects[kolvo_elem].y, storage.objects[kolvo_elem].R * 2, storage.objects[kolvo_elem].R * 2);
+
+                    }
+                    else
                     picture.CreateGraphics().DrawEllipse(pen, storage.objects[kolvo_elem].x, storage.objects[kolvo_elem].y, storage.objects[kolvo_elem].R * 2, storage.objects[kolvo_elem].R * 2);
+                }
                 else if (storage.objects[kolvo_elem].Class_Name() == "Square")
-                { 
+                {
+                    if (storage.objects[kolvo_elem].choose == true)
+                    {
+                        picture.CreateGraphics().DrawEllipse(pen1, storage.objects[kolvo_elem].x + storage.objects[kolvo_elem].R, storage.objects[kolvo_elem].y + storage.objects[kolvo_elem].R, 1, 1);
+                        picture.CreateGraphics().DrawRectangle(pen1, storage.objects[kolvo_elem].x, storage.objects[kolvo_elem].y, storage.objects[kolvo_elem].R * 2, storage.objects[kolvo_elem].R * 2);
+                        if (storage.objects[kolvo_elem].color == selected_color)
+                            picture.CreateGraphics().DrawRectangle(pen, storage.objects[kolvo_elem].x, storage.objects[kolvo_elem].y, storage.objects[kolvo_elem].R * 2, storage.objects[kolvo_elem].R * 2);
+
+                    }
+                    else
                     picture.CreateGraphics().DrawRectangle(pen, storage.objects[kolvo_elem].x, storage.objects[kolvo_elem].y, storage.objects[kolvo_elem].R * 2, storage.objects[kolvo_elem].R * 2);
                 }
                 else if (storage.objects[kolvo_elem].Class_Name() == "Triangle")
                 {
-                    /* polygonPoints[0] = new PointF(this.x, (int)(this.y - 2 * R * Math.Sqrt(3) / 3));
+                    /*Доработать polygonPoints[0] = new PointF(this.x, (int)(this.y - 2 * R * Math.Sqrt(3) / 3));
                 polygonPoints[1] = new PointF(this.x - R, (int)(this.y + R * Math.Sqrt(3) / 3));
                 polygonPoints[2] = new PointF(this.x + R, (int)(this.y + R * Math.Sqrt(3) / 3));*/
-                    Triangle Hi = (Triangle )storage.objects[kolvo_elem];
+                    Triangle Hi = (Triangle)storage.objects[kolvo_elem];
                     picture.CreateGraphics().DrawPolygon(pen, Hi.polygonPoints);
                 }
             }
@@ -167,19 +192,30 @@ namespace Лаба_6_пробник
             for (int i = 0; i < sizeStorage; ++i)
                 if (!storage.proverka(i))
                 {
-                   if(storage.objects[i].color==selected_color)
-                    storage.objects[i].color = current_color;
+                    if (storage.objects[i].color == selected_color || storage.objects[i].choose == true)
+                    {
+                        storage.objects[i].choose = false;
+                        storage.objects[i].color = current_color;
+                    }
                     if (storage.objects[i].narisovana == true)
                         MyPaint(i, ref storage);
                 }
         }
         private void picture_MouseClick(object sender, MouseEventArgs e)
         {
-          
+            Shape krug = new CCircle(e.X, e.Y, current_color); 
             if (кругToolStripMenuItem.Checked)
             {
-                
-                Shape krug = new CCircle(e.X, e.Y, current_color);
+                 krug = new CCircle(e.X, e.Y, current_color);
+            }
+            else if (квадратToolStripMenuItem.Checked) {
+                 krug = new Square(e.X, e.Y, current_color);
+            }
+            else if (треугольникToolStripMenuItem.Checked)
+            {
+                 krug = new Square(e.X, e.Y, current_color);
+            }
+            {
                 if (Check_In(ref storage, sizeStorage, krug.x, krug.y) != -1)
                 {
                     if (Control.ModifierKeys == Keys.Control)
@@ -189,6 +225,11 @@ namespace Лаба_6_пробник
                         for (int i = 0; i < sizeStorage; i++)
                             if (!storage.proverka(i))
                             {
+                                if (storage.objects[i].choose == true)
+                                {
+                                    storage.objects[i].color = selected_color;
+                                    MyPaint(i, ref storage);
+                                }
                                 if (storage.objects[i].Class_Name() == "CCircle")
                                 {
                                     if ((x - storage.objects[i].x) * (x - storage.objects[i].x) + (y - storage.objects[i].y) * (y - storage.objects[i].y) <= storage.objects[i].R * storage.objects[i].R)
@@ -230,16 +271,16 @@ namespace Лаба_6_пробник
                                 {
                                     if ((x - storage.objects[i].x) * (x - storage.objects[i].x) + (y - storage.objects[i].y) * (y - storage.objects[i].y) <= storage.objects[i].R * storage.objects[i].R)
                                     {
-                                        storage.objects[i].color = selected_color1;
+                                        storage.objects[i].choose = true;
                                         MyPaint(i, ref storage);
                                         break;
                                     }
                                 }
-                                else if (storage.objects[i].Class_Name() == "Square") 
+                                else if (storage.objects[i].Class_Name() == "Square")
                                 {
                                     if (Math.Abs(storage.objects[i].x - x) < storage.objects[i].R && Math.Abs(storage.objects[i].y - y) < storage.objects[i].R)
                                     {
-                                        storage.objects[i].color = selected_color1;
+                                        storage.objects[i].choose = true;
                                         MyPaint(i, ref storage);
                                         break;
                                     }
@@ -248,201 +289,27 @@ namespace Лаба_6_пробник
                                 {
                                     if ((x - storage.objects[i].x) * (x - storage.objects[i].x) + (y - storage.objects[i].y) * (y - storage.objects[i].y) <= storage.objects[i].R * storage.objects[i].R)
                                     {
-                                        storage.objects[i].color = selected_color1;
+                                        storage.objects[i].choose = true;
                                         MyPaint(i, ref storage);
                                         break;
                                     }
                                 }
                             }
-                        storage.objects[Check_In(ref storage, sizeStorage, krug.x, krug.y)].color = selected_color1;
+                        storage.objects[Check_In(ref storage, sizeStorage, krug.x, krug.y)].choose = true;
                         MyPaint(Check_In(ref storage, sizeStorage, krug.x, krug.y), ref storage);
+                        button3_Click(sender, e);
                     }
                     return;
                 }
                 storage.add_object(ref sizeStorage, ref krug, kolvo_elem, ref index_sozdania);
                 Remove_Selection(ref storage);
-                storage.objects[index_sozdania].color = selected_color;
+                storage.objects[index_sozdania].choose = true;
                 MyPaint(index_sozdania, ref storage);
                 kolvo_elem++;
-
-            }
-            else if (квадратToolStripMenuItem.Checked)
-            {
-                Shape kvad = new Square(e.X, e.Y, basic_color);
-                if (Check_In(ref storage, sizeStorage, kvad.x, kvad.y) != -1)
-                {
-                    if (Control.ModifierKeys == Keys.Control)
-                    {
-                        int x = e.X-kvad.R;
-                        int y = e.Y - kvad.R;
-                        for (int i = 0; i < sizeStorage; i++)
-                            if (!storage.proverka(i))
-                            {
-                                if (storage.objects[i].Class_Name() == "CCircle")
-                                {
-                                    if ((x - storage.objects[i].x) * (x - storage.objects[i].x) + (y - storage.objects[i].y) * (y - storage.objects[i].y) <= storage.objects[i].R * storage.objects[i].R)
-                                    {
-                                        storage.objects[i].color = selected_color;
-                                        MyPaint(i, ref storage);
-
-                                    }
-                                }
-                                else if (storage.objects[i].Class_Name() == "Square")
-                                {
-                                    if (Math.Abs(storage.objects[i].x - x) < storage.objects[i].R && Math.Abs(storage.objects[i].y - y) < storage.objects[i].R)
-                                    {
-                                        storage.objects[i].color = selected_color;
-                                        MyPaint(i, ref storage);
-
-                                    }
-                                }
-                                else if (storage.objects[i].Class_Name() == "Triangle")
-                                {
-                                    if ((x - storage.objects[i].x) * (x - storage.objects[i].x) + (y - storage.objects[i].y) * (y - storage.objects[i].y) <= storage.objects[i].R * storage.objects[i].R)
-                                    {
-                                        storage.objects[i].color = selected_color;
-                                        MyPaint(i, ref storage);
-
-                                    }
-                                }
-                            }
-                    }
-                    else
-                    {
-                        int x = e.X-kvad.R ;
-                        int y = e.Y-kvad.R ;
-                        Remove_Selection(ref storage);
-                        for (int i = 0; i < sizeStorage; i++)
-                            if (!storage.proverka(i))
-                            {
-                                if (storage.objects[i].Class_Name() == "CCircle")
-                                {
-                                    if ((x - storage.objects[i].x) * (x - storage.objects[i].x) + (y - storage.objects[i].y) * (y - storage.objects[i].y) <= storage.objects[i].R * storage.objects[i].R)
-                                    {
-                                        storage.objects[i].color = selected_color;
-                                        MyPaint(i, ref storage);
-                                        break;
-                                    }
-                                }
-                                else if (storage.objects[i].Class_Name() == "Square")
-                                {
-                                    if (Math.Abs(storage.objects[i].x - x) < storage.objects[i].R && Math.Abs(storage.objects[i].y - y) < storage.objects[i].R)
-                                    {
-                                        storage.objects[i].color = selected_color;
-                                        MyPaint(i, ref storage);
-                                        break;
-                                    }
-                                }
-                                else if (storage.objects[i].Class_Name() == "Triangle")
-                                {
-                                    if ((x - storage.objects[i].x) * (x - storage.objects[i].x) + (y - storage.objects[i].y) * (y - storage.objects[i].y) <= storage.objects[i].R * storage.objects[i].R)
-                                    {
-                                        storage.objects[i].color = selected_color;
-                                        MyPaint(i, ref storage);
-
-                                    }
-                                }
-                            }
-                        storage.objects[Check_In(ref storage, sizeStorage, kvad.x, kvad.y)].color = selected_color;
-                        MyPaint(Check_In(ref storage, sizeStorage, kvad.x, kvad.y), ref storage);
-                    }
-                    return;
-                }
-                storage.add_object(ref sizeStorage, ref kvad, kolvo_elem, ref index_sozdania);
-                Remove_Selection(ref storage);
-                storage.objects[index_sozdania].color = selected_color;
-                MyPaint(index_sozdania, ref storage);
-                kolvo_elem++;
-            }
-            if (треугольникToolStripMenuItem.Checked)
-            {
-                Shape treug = new Triangle(e.X, e.Y, basic_color);
-                if (Check_In(ref storage, sizeStorage, treug.x, treug.y) != -1)
-                {
-                    if (Control.ModifierKeys == Keys.Control)
-                    {
-                        int x = e.X ;
-                        int y = e.Y ;
-                        for (int i = 0; i < sizeStorage; i++)
-                            if (!storage.proverka(i))
-                            {
-                                if (storage.objects[i].Class_Name() == "CCircle")
-                                {
-                                    if ((x - storage.objects[i].x) * (x - storage.objects[i].x) + (y - storage.objects[i].y) * (y - storage.objects[i].y) <= storage.objects[i].R * storage.objects[i].R)
-                                    {
-                                        storage.objects[i].color = selected_color;
-                                        MyPaint(i, ref storage);
-
-                                    }
-                                }
-                                else if (storage.objects[i].Class_Name() == "Square")
-                                {
-                                    if (Math.Abs(storage.objects[i].x - x) < storage.objects[i].R && Math.Abs(storage.objects[i].y - y) < storage.objects[i].R)
-                                    {
-                                        storage.objects[i].color = selected_color;
-                                        MyPaint(i, ref storage);
-
-                                    }
-                                }
-                                else if (storage.objects[i].Class_Name() == "Triangle")
-                                {
-                                    if ((x - storage.objects[i].x) * (x - storage.objects[i].x) + (y - storage.objects[i].y) * (y - storage.objects[i].y) <= storage.objects[i].R * storage.objects[i].R)
-                                    {
-                                        storage.objects[i].color = selected_color;
-                                        MyPaint(i, ref storage);
-
-                                    }
-                                }
-                            }
-                    }
-                    else
-                    {
-                        int x = e.X ;
-                        int y = e.Y ;
-                        Remove_Selection(ref storage);
-                        for (int i = 0; i < sizeStorage; i++)
-                            if (!storage.proverka(i))
-                            {
-                                if (storage.objects[i].Class_Name() == "CCircle")
-                                {
-                                    if ((x - storage.objects[i].x) * (x - storage.objects[i].x) + (y - storage.objects[i].y) * (y - storage.objects[i].y) <= storage.objects[i].R * storage.objects[i].R)
-                                    {
-                                        storage.objects[i].color = selected_color;
-                                        MyPaint(i, ref storage);
-                                        break;
-                                    }
-                                }
-                                else if (storage.objects[i].Class_Name() == "Square")
-                                {
-                                    if (Math.Abs(storage.objects[i].x - x) < storage.objects[i].R && Math.Abs(storage.objects[i].y - y) < storage.objects[i].R)
-                                    {
-                                        storage.objects[i].color = selected_color;
-                                        MyPaint(i, ref storage);
-                                        break;
-                                    }
-                                }
-                                else if (storage.objects[i].Class_Name() == "Triangle")
-                                {
-                                    if ((x - storage.objects[i].x) * (x - storage.objects[i].x) + (y - storage.objects[i].y) * (y - storage.objects[i].y) <= storage.objects[i].R * storage.objects[i].R)
-                                    {
-                                        storage.objects[i].color = selected_color;
-                                        MyPaint(i, ref storage);
-                                        break;
-                                    }
-                                }
-                            }
-                        storage.objects[Check_In(ref storage, sizeStorage, treug.x, treug.y)].color = selected_color;
-                        MyPaint(Check_In(ref storage, sizeStorage, treug.x, treug.y), ref storage);
-                    }
-                    return;
-                }
-                storage.add_object(ref sizeStorage, ref treug, kolvo_elem, ref index_sozdania);
-                Remove_Selection(ref storage);
-                storage.objects[index_sozdania].color = selected_color;
-                MyPaint(index_sozdania, ref storage);
-                kolvo_elem++;
-
-            }
+                button3_Click(sender, e);
+            } 
+            
+            
         }
         public class Storage
         {
@@ -513,7 +380,6 @@ namespace Лаба_6_пробник
                 if (!storage.proverka(i))
                 {
                     storage.objects[i].narisovana = false;
-                    storage.objects[i].color = basic_color;
                 }
             }
         }
@@ -546,7 +412,7 @@ namespace Лаба_6_пробник
         {
             if (storage.kolvo_zanyatix(sizeStorage) != 0)
                 for (int i = 0; i < sizeStorage; i++)
-                    if (storage.proverka(i) == false && storage.objects[i].color == selected_color)
+                    if (storage.proverka(i) == false && (storage.objects[i].color == selected_color || storage.objects[i].choose == true))
                         storage.Delte_obj(ref i);
 
             button2_Click(sender, e);
@@ -566,19 +432,7 @@ namespace Лаба_6_пробник
 
         
 
-        private void picture_PreviewKeyDown(object sender, PreviewKeyDownEventArgs e)
-        {
-            if (Control.ModifierKeys == Keys.Right)
-            {
-                for (int i = 0; i < sizeStorage; i++)
-                    if (storage.objects[i].color == selected_color)
-                    {
-                        storage.objects[i].x += 1;
-                        MyPaint(i, ref storage);
-                    }
-
-            }
-        }
+       
 
         private void кругToolStripMenuItem_Click(object sender, EventArgs e)
         {
@@ -611,7 +465,7 @@ namespace Лаба_6_пробник
                 for (int i = 0; i < sizeStorage - 1; i++)
                 {
                     if (!storage.proverka(i)) 
-                    if (storage.objects[i].color == selected_color) 
+                    if (storage.objects[i].choose == true) 
                     norm = i;
 
 
@@ -682,8 +536,8 @@ namespace Лаба_6_пробник
                         }
                         else if (e.KeyChar == (char)Keys.L)
                         {
-                           // storage.objects[norm].y -= 1;
-                            //storage.objects[norm].x -= 1;
+                            storage.objects[norm].y -= 1;
+                            storage.objects[norm].x -= 1;
                             storage.objects[norm].R += 1;
 
                             MyPaint(norm, ref storage);
@@ -691,8 +545,8 @@ namespace Лаба_6_пробник
 
                         else if (e.KeyChar == (char)Keys.K)
                         {
-                           // storage.objects[norm].y += 1;
-                           // storage.objects[norm].x += 1;
+                            storage.objects[norm].y += 1;
+                           storage.objects[norm].x += 1;
                             storage.objects[norm].R -= 1;
                             if (storage.objects[norm].R < 1)
                                 storage.objects[norm].R = 1;
@@ -783,8 +637,9 @@ namespace Лаба_6_пробник
             желтыйToolStripMenuItem.Checked = false;
             черныйToolStripMenuItem.Checked = false;
             зеленыйToolStripMenuItem.Checked = false;
-            selected_color = Color.DarkBlue;
+           
             current_color = Color.DarkBlue;
+            button3_Click(sender, e);
         }
 
         private void желтыйToolStripMenuItem_Click(object sender, EventArgs e)
@@ -793,8 +648,9 @@ namespace Лаба_6_пробник
             желтыйToolStripMenuItem.Checked = true;
             черныйToolStripMenuItem.Checked = false;
             зеленыйToolStripMenuItem.Checked = false;
-            selected_color = Color.Yellow;
+          
             current_color = Color.Yellow;
+            button3_Click(sender, e);
         }
 
         private void черныйToolStripMenuItem_Click(object sender, EventArgs e)
@@ -803,8 +659,9 @@ namespace Лаба_6_пробник
             желтыйToolStripMenuItem.Checked = false;
             черныйToolStripMenuItem.Checked = true;
             зеленыйToolStripMenuItem.Checked = false;
-            selected_color = Color.Black;
+          
             current_color = Color.Black;
+            button3_Click(sender, e);
         }
 
         private void зеленыйToolStripMenuItem_Click(object sender, EventArgs e)
@@ -813,8 +670,9 @@ namespace Лаба_6_пробник
             желтыйToolStripMenuItem.Checked = false;
             черныйToolStripMenuItem.Checked = false;
             зеленыйToolStripMenuItem.Checked = true;
-            selected_color = Color.Green;
+         
             current_color = Color.Green;
+            button3_Click(sender, e);
         }
 
         private void picture_Paint(object sender, PaintEventArgs e)
@@ -822,5 +680,4 @@ namespace Лаба_6_пробник
 
         }
     }
-    
 }
