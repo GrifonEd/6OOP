@@ -104,7 +104,7 @@ namespace Лаба_6_пробник
             {
             }
         }
-        private int Check_In(ref Storage storage, int size, int x, int y)
+        private int Check_In(ref Storage storage, int size, int x, int y,int R)
         {
             if (storage.kolvo_zanyatix(size) != 0)
             {
@@ -114,12 +114,12 @@ namespace Лаба_6_пробник
                     {
                         if (storage.objects[i].Class_Name() == "CCircle")
                         {
-                            if ((x - storage.objects[i].x) * (x - storage.objects[i].x) + (y - storage.objects[i].y) * (y - storage.objects[i].y) <= storage.objects[i].R * storage.objects[i].R)
+                            if (((x+R) - (storage.objects[i].x+ storage.objects[i].R)) * ((x + R) - (storage.objects[i].x + storage.objects[i].R)) + ((y + R) - (storage.objects[i].y + storage.objects[i].R)) * ((y + R) - (storage.objects[i].y + storage.objects[i].R)) <= storage.objects[i].R * storage.objects[i].R)
                                 return i;
                         }
                         else if(storage.objects[i].Class_Name() == "Square")
                         {
-                            if (Math.Abs(storage.objects[i].x - x) < storage.objects[i].R && Math.Abs( storage.objects[i].y - y) < storage.objects[i].R)
+                            if (Math.Abs((storage.objects[i].x+ storage.objects[i].R) - (x+R)) < storage.objects[i].R && Math.Abs(( storage.objects[i].y+ storage.objects[i].R)- (y+R)) < storage.objects[i].R)
                                 return i;
                         }
                         else if (storage.objects[i].Class_Name() == "Triangle")
@@ -142,12 +142,23 @@ namespace Лаба_6_пробник
                     storage.objects[kolvo_elem].x = 711- 2*storage.objects[kolvo_elem].R;
                 if (storage.objects[kolvo_elem].x  < 0)
                     storage.objects[kolvo_elem].x =  0;
-               //Доработать if(storage.objects[kolvo_elem].x < 0 && storage.objects[kolvo_elem].x + 2 * storage.objects[kolvo_elem].R > 711)
+                if (storage.objects[kolvo_elem].x < 0 || storage.objects[kolvo_elem].x + 2 * storage.objects[kolvo_elem].R > 711)
+                {
+                    storage.objects[kolvo_elem].R = 711 / 2;
+                    
+
+                }
+                //Доработать if(storage.objects[kolvo_elem].x < 0 && storage.objects[kolvo_elem].x + 2 * storage.objects[kolvo_elem].R > 711)
 
                 if (storage.objects[kolvo_elem].y + 2*storage.objects[kolvo_elem].R> 420)
                     storage.objects[kolvo_elem].y = 420- 2*storage.objects[kolvo_elem].R;
                 if (storage.objects[kolvo_elem].y < 0)
                     storage.objects[kolvo_elem].y = 0;
+                if (storage.objects[kolvo_elem].y + 2 * storage.objects[kolvo_elem].R > 420 || storage.objects[kolvo_elem].y < 0)
+                {
+                    storage.objects[kolvo_elem].x += 1;
+                    storage.objects[kolvo_elem].R = 420 / 2;
+                }
                 Pen pen = new Pen(storage.objects[kolvo_elem].color, 4);
 
                 Pen pen1 = new Pen(current_color, 10);
@@ -213,15 +224,16 @@ namespace Лаба_6_пробник
             }
             else if (треугольникToolStripMenuItem.Checked)
             {
-                 krug = new Square(e.X, e.Y, current_color);
+                 krug = new Triangle(e.X, e.Y, current_color);
             }
             {
-                if (Check_In(ref storage, sizeStorage, krug.x, krug.y) != -1)
+                if (Check_In(ref storage, sizeStorage, krug.x, krug.y,krug.R) != -1)
                 {
                     if (Control.ModifierKeys == Keys.Control)
                     {
                         int x = e.X - krug.R;
                         int y = e.Y - krug.R;
+                        
                         for (int i = 0; i < sizeStorage; i++)
                             if (!storage.proverka(i))
                             {
@@ -232,7 +244,7 @@ namespace Лаба_6_пробник
                                 }
                                 if (storage.objects[i].Class_Name() == "CCircle")
                                 {
-                                    if ((x - storage.objects[i].x) * (x - storage.objects[i].x) + (y - storage.objects[i].y) * (y - storage.objects[i].y) <= storage.objects[i].R * storage.objects[i].R)
+                                    if (((x + krug.R) - (storage.objects[i].x + storage.objects[i].R)) * ((x + krug.R) - (storage.objects[i].x + storage.objects[i].R)) + ((y + krug.R) - (storage.objects[i].y + storage.objects[i].R)) * ((y + krug.R) - (storage.objects[i].y + storage.objects[i].R)) <= storage.objects[i].R * storage.objects[i].R)
                                     {
                                         storage.objects[i].color = selected_color;
                                         MyPaint(i, ref storage);
@@ -241,7 +253,7 @@ namespace Лаба_6_пробник
                                 }
                                 else if (storage.objects[i].Class_Name() == "Square")
                                 {
-                                    if (Math.Abs(storage.objects[i].x - x) < storage.objects[i].R && Math.Abs(storage.objects[i].y - y) < storage.objects[i].R)
+                                    if (Math.Abs((storage.objects[i].x + storage.objects[i].R) - (x + krug.R)) < storage.objects[i].R && Math.Abs((storage.objects[i].y + storage.objects[i].R) - (y + krug.R)) < storage.objects[i].R)
                                     {
                                         storage.objects[i].color = selected_color;
                                         MyPaint(i, ref storage);
@@ -295,8 +307,8 @@ namespace Лаба_6_пробник
                                     }
                                 }
                             }
-                        storage.objects[Check_In(ref storage, sizeStorage, krug.x, krug.y)].choose = true;
-                        MyPaint(Check_In(ref storage, sizeStorage, krug.x, krug.y), ref storage);
+                        storage.objects[Check_In(ref storage, sizeStorage, krug.x, krug.y,krug.R)].choose = true;
+                        MyPaint(Check_In(ref storage, sizeStorage, krug.x, krug.y,krug.R), ref storage);
                         button3_Click(sender, e);
                     }
                     return;
