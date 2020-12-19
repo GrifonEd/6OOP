@@ -12,6 +12,7 @@ namespace Лаба_6_пробник
 {
     public partial class Form1 : Form
     {
+        Bitmap bitmap;
         Color current_color = Color.DarkBlue;
         Color basic_color = Color.DarkBlue;
         Color selected_color = Color.Red;
@@ -19,11 +20,15 @@ namespace Лаба_6_пробник
         int kolvo_elem = 0;
         static int sizeStorage = 1;
         int index_sozdania;
+        Graphics graphics;
         Storage storage = new Storage(sizeStorage);
         
         public Form1()
         {
             InitializeComponent();
+            bitmap = new Bitmap(picture.Width, picture.Height);
+            graphics = Graphics.FromImage(bitmap);
+            picture.Image = bitmap;
            
         }
 
@@ -37,9 +42,27 @@ namespace Лаба_6_пробник
             public int x, y;
             public bool choose=false;
             public bool narisovana = true;
+
             public virtual string Class_Name()
             {
                 return ClassName;
+            }
+            public static bool IsPointInPolygon4(PointF[] polygon, PointF testPoint)
+            {
+                bool result = false;
+                int j = polygon.Count() - 1;
+                for (int i = 0; i < polygon.Count(); i++)
+                {
+                    if (polygon[i].Y < testPoint.Y && polygon[j].Y >= testPoint.Y || polygon[j].Y < testPoint.Y && polygon[i].Y >= testPoint.Y)
+                    {
+                        if (polygon[i].X + (testPoint.Y - polygon[i].Y) / (polygon[j].Y - polygon[i].Y) * (polygon[j].X - polygon[i].X) < testPoint.X)
+                        {
+                            result = !result;
+                        }
+                    }
+                    j = i;
+                }
+                return result;
             }
         }
         public class Square : Shape
@@ -84,6 +107,7 @@ namespace Лаба_6_пробник
             ~Triangle()
             {
             }
+           
         }
         public class CCircle :  Shape 
         {
@@ -124,9 +148,9 @@ namespace Лаба_6_пробник
                         }
                         else if (storage.objects[i].Class_Name() == "Triangle")
                         {
-
-                            if (Math.Abs(storage.objects[i].x - x) < storage.objects[i].R && Math.Abs(storage.objects[i].y - y) < storage.objects[i].R)
-                                return i;
+                            if(((x< storage.objects[i].polygonPoints[0].X)&&(x > storage.objects[i].polygonPoints[1].X) && ((y > storage.objects[i].polygonPoints[0].Y) && (y < storage.objects[i].polygonPoints[1].Y))&& ((x > storage.objects[i].polygonPoints[1].X) && (x < storage.objects[i].polygonPoints[2].X)) && ((x < storage.objects[i].polygonPoints[2].X) && (x > storage.objects[i].polygonPoints[0].X)) && ((y < storage.objects[i].polygonPoints[2].Y) && (y > storage.objects[i].polygonPoints[0].Y))))
+                                    return i;
+                
                         }
                     }
                 }
@@ -166,27 +190,28 @@ namespace Лаба_6_пробник
                 {
                     if (storage.objects[kolvo_elem].choose == true)
                     {
-                        picture.CreateGraphics().DrawEllipse(pen1, storage.objects[kolvo_elem].x+ storage.objects[kolvo_elem].R, storage.objects[kolvo_elem].y+ storage.objects[kolvo_elem].R, 1, 1);
-                        picture.CreateGraphics().DrawEllipse(pen1, storage.objects[kolvo_elem].x, storage.objects[kolvo_elem].y, storage.objects[kolvo_elem].R * 2, storage.objects[kolvo_elem].R * 2);
-                        if(storage.objects[kolvo_elem].color==selected_color)
-                            picture.CreateGraphics().DrawEllipse(pen, storage.objects[kolvo_elem].x, storage.objects[kolvo_elem].y, storage.objects[kolvo_elem].R * 2, storage.objects[kolvo_elem].R * 2);
+                        graphics.DrawEllipse(pen1, storage.objects[kolvo_elem].x+ storage.objects[kolvo_elem].R, storage.objects[kolvo_elem].y+ storage.objects[kolvo_elem].R, 1, 1);
+                        graphics.DrawEllipse(pen1, storage.objects[kolvo_elem].x, storage.objects[kolvo_elem].y, storage.objects[kolvo_elem].R * 2, storage.objects[kolvo_elem].R * 2);
+                        graphics.DrawEllipse(pen, storage.objects[kolvo_elem].x, storage.objects[kolvo_elem].y, storage.objects[kolvo_elem].R * 2, storage.objects[kolvo_elem].R * 2);
+                        if (storage.objects[kolvo_elem].color == selected_color) ;
+                            
 
                     }
                     else
-                    picture.CreateGraphics().DrawEllipse(pen, storage.objects[kolvo_elem].x, storage.objects[kolvo_elem].y, storage.objects[kolvo_elem].R * 2, storage.objects[kolvo_elem].R * 2);
+                        graphics.DrawEllipse(pen, storage.objects[kolvo_elem].x, storage.objects[kolvo_elem].y, storage.objects[kolvo_elem].R * 2, storage.objects[kolvo_elem].R * 2);
                 }
                 else if (storage.objects[kolvo_elem].Class_Name() == "Square")
                 {
                     if (storage.objects[kolvo_elem].choose == true)
                     {
-                        picture.CreateGraphics().DrawEllipse(pen1, storage.objects[kolvo_elem].x + storage.objects[kolvo_elem].R, storage.objects[kolvo_elem].y + storage.objects[kolvo_elem].R, 1, 1);
-                        picture.CreateGraphics().DrawRectangle(pen1, storage.objects[kolvo_elem].x, storage.objects[kolvo_elem].y, storage.objects[kolvo_elem].R * 2, storage.objects[kolvo_elem].R * 2);
+                        graphics.DrawEllipse(pen1, storage.objects[kolvo_elem].x + storage.objects[kolvo_elem].R, storage.objects[kolvo_elem].y + storage.objects[kolvo_elem].R, 1, 1);
+                        graphics.DrawRectangle(pen1, storage.objects[kolvo_elem].x, storage.objects[kolvo_elem].y, storage.objects[kolvo_elem].R * 2, storage.objects[kolvo_elem].R * 2);
                         if (storage.objects[kolvo_elem].color == selected_color)
-                            picture.CreateGraphics().DrawRectangle(pen, storage.objects[kolvo_elem].x, storage.objects[kolvo_elem].y, storage.objects[kolvo_elem].R * 2, storage.objects[kolvo_elem].R * 2);
+                            graphics.DrawRectangle(pen, storage.objects[kolvo_elem].x, storage.objects[kolvo_elem].y, storage.objects[kolvo_elem].R * 2, storage.objects[kolvo_elem].R * 2);
 
                     }
                     else
-                    picture.CreateGraphics().DrawRectangle(pen, storage.objects[kolvo_elem].x, storage.objects[kolvo_elem].y, storage.objects[kolvo_elem].R * 2, storage.objects[kolvo_elem].R * 2);
+                    graphics.DrawRectangle(pen, storage.objects[kolvo_elem].x, storage.objects[kolvo_elem].y, storage.objects[kolvo_elem].R * 2, storage.objects[kolvo_elem].R * 2);
                 }
                 else if (storage.objects[kolvo_elem].Class_Name() == "Triangle")
                 {
@@ -194,9 +219,10 @@ namespace Лаба_6_пробник
                 polygonPoints[1] = new PointF(this.x - R, (int)(this.y + R * Math.Sqrt(3) / 3));
                 polygonPoints[2] = new PointF(this.x + R, (int)(this.y + R * Math.Sqrt(3) / 3));*/
                     Triangle Hi = (Triangle)storage.objects[kolvo_elem];
-                    picture.CreateGraphics().DrawPolygon(pen, Hi.polygonPoints);
+                    graphics.DrawPolygon(pen, Hi.polygonPoints);
                 }
             }
+            picture.Image = bitmap;
         }
         private void Remove_Selection(ref Storage storage)
         {
@@ -262,7 +288,7 @@ namespace Лаба_6_пробник
                                 }
                                 else if (storage.objects[i].Class_Name() == "Triangle")
                                 {
-                                    if ((x - storage.objects[i].x) * (x - storage.objects[i].x) + (y - storage.objects[i].y) * (y - storage.objects[i].y) <= storage.objects[i].R * storage.objects[i].R)
+                                    if (((x < storage.objects[i].polygonPoints[0].X) && (x > storage.objects[i].polygonPoints[1].X) && ((y > storage.objects[i].polygonPoints[0].Y) && (y < storage.objects[i].polygonPoints[1].Y)) && ((x > storage.objects[i].polygonPoints[1].X) && (x < storage.objects[i].polygonPoints[2].X)) && ((x < storage.objects[i].polygonPoints[2].X) && (x > storage.objects[i].polygonPoints[0].X)) && ((y < storage.objects[i].polygonPoints[2].Y) && (y > storage.objects[i].polygonPoints[0].Y))))
                                     {
                                         storage.objects[i].color = selected_color;
                                         MyPaint(i, ref storage);
@@ -315,7 +341,8 @@ namespace Лаба_6_пробник
                 }
                 storage.add_object(ref sizeStorage, ref krug, kolvo_elem, ref index_sozdania);
                 Remove_Selection(ref storage);
-                storage.objects[index_sozdania].choose = true;
+                storage.objects[index_sozdania].color = selected_color;
+               storage.objects[index_sozdania].choose = true;
                 MyPaint(index_sozdania, ref storage);
                 kolvo_elem++;
                 button3_Click(sender, e);
@@ -386,7 +413,7 @@ namespace Лаба_6_пробник
 
         private void button2_Click(object sender, EventArgs e)
         {
-            picture.Refresh();
+            graphics.Clear(Color.White);
             for (int i = 0; i < sizeStorage; i++)
             {
                 if (!storage.proverka(i))
@@ -394,11 +421,12 @@ namespace Лаба_6_пробник
                     storage.objects[i].narisovana = false;
                 }
             }
+            picture.Image = bitmap;
         }
 
         private void button3_Click(object sender, EventArgs e)
         {
-            picture.Refresh();
+            graphics.Clear(Color.White);
             if (storage.kolvo_zanyatix(sizeStorage) != 0)
                 for (int i = 0; i < sizeStorage; ++i)
                 {
@@ -406,6 +434,7 @@ namespace Лаба_6_пробник
                     if (!storage.proverka(i))
                         storage.objects[i].narisovana = true; // Для элемента ставим флаг - нарисован
                 }
+            picture.Image = bitmap;
         }
 
         private void button4_Click(object sender, EventArgs e)
