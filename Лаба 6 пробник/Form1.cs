@@ -47,23 +47,7 @@ namespace Лаба_6_пробник
             {
                 return ClassName;
             }
-            public static bool IsPointInPolygon4(PointF[] polygon, PointF testPoint)
-            {
-                bool result = false;
-                int j = polygon.Count() - 1;
-                for (int i = 0; i < polygon.Count(); i++)
-                {
-                    if (polygon[i].Y < testPoint.Y && polygon[j].Y >= testPoint.Y || polygon[j].Y < testPoint.Y && polygon[i].Y >= testPoint.Y)
-                    {
-                        if (polygon[i].X + (testPoint.Y - polygon[i].Y) / (polygon[j].Y - polygon[i].Y) * (polygon[j].X - polygon[i].X) < testPoint.X)
-                        {
-                            result = !result;
-                        }
-                    }
-                    j = i;
-                }
-                return result;
-            }
+          
         }
         public class Square : Shape
         {
@@ -138,8 +122,14 @@ namespace Лаба_6_пробник
                     {
                         if (storage.objects[i].Class_Name() == "CCircle")
                         {
-                            if (((x+R) - (storage.objects[i].x+ storage.objects[i].R)) * ((x + R) - (storage.objects[i].x + storage.objects[i].R)) + ((y + R) - (storage.objects[i].y + storage.objects[i].R)) * ((y + R) - (storage.objects[i].y + storage.objects[i].R)) <= storage.objects[i].R * storage.objects[i].R)
+                            
+                                if (((x+R) - (storage.objects[i].x+ storage.objects[i].R)) * ((x + R) - (storage.objects[i].x + storage.objects[i].R)) + ((y + R) - (storage.objects[i].y + storage.objects[i].R)) * ((y + R) - (storage.objects[i].y + storage.objects[i].R)) <= storage.objects[i].R * storage.objects[i].R)
                                 return i;
+                            if (storage.objects[i].Class_Name() == "Triangle")
+                            {
+                                if (((x-R) - (storage.objects[i].x + storage.objects[i].R)) * ((x-R) - (storage.objects[i].x + storage.objects[i].R)) + ((y-R) - (storage.objects[i].y + storage.objects[i].R)) * ((y-R) - (storage.objects[i].y + storage.objects[i].R)) <= storage.objects[i].R * storage.objects[i].R)
+                                    return i;
+                            }
                         }
                         else if(storage.objects[i].Class_Name() == "Square")
                         {
@@ -148,7 +138,9 @@ namespace Лаба_6_пробник
                         }
                         else if (storage.objects[i].Class_Name() == "Triangle")
                         {
-                            if(((x< storage.objects[i].polygonPoints[0].X)&&(x > storage.objects[i].polygonPoints[1].X) && ((y > storage.objects[i].polygonPoints[0].Y) && (y < storage.objects[i].polygonPoints[1].Y))&& ((x > storage.objects[i].polygonPoints[1].X) && (x < storage.objects[i].polygonPoints[2].X)) && ((x < storage.objects[i].polygonPoints[2].X) && (x > storage.objects[i].polygonPoints[0].X)) && ((y < storage.objects[i].polygonPoints[2].Y) && (y > storage.objects[i].polygonPoints[0].Y))))
+                            
+                           
+                                if ((((x< storage.objects[i].polygonPoints[0].X)&&(x > storage.objects[i].polygonPoints[1].X) && ((y > storage.objects[i].polygonPoints[0].Y) && (y < storage.objects[i].polygonPoints[1].Y)))|| (((x < storage.objects[i].polygonPoints[2].X) && (x > storage.objects[i].polygonPoints[0].X)) && ((y < storage.objects[i].polygonPoints[2].Y) && (y > storage.objects[i].polygonPoints[0].Y)))))
                                     return i;
                 
                         }
@@ -162,7 +154,11 @@ namespace Лаба_6_пробник
         {
             if (storage.objects[kolvo_elem] != null)
             {
-                if (storage.objects[kolvo_elem].x+2*storage.objects[kolvo_elem].R  > 711)
+                
+                //Доработать if(storage.objects[kolvo_elem].x < 0 && storage.objects[kolvo_elem].x + 2 * storage.objects[kolvo_elem].R > 711)
+                if (storage.objects[kolvo_elem].Class_Name() != "Triangle")
+                {
+                    if (storage.objects[kolvo_elem].x+2*storage.objects[kolvo_elem].R  > 711)
                     storage.objects[kolvo_elem].x = 711- 2*storage.objects[kolvo_elem].R;
                 if (storage.objects[kolvo_elem].x  < 0)
                     storage.objects[kolvo_elem].x =  0;
@@ -172,16 +168,34 @@ namespace Лаба_6_пробник
                     
 
                 }
-                //Доработать if(storage.objects[kolvo_elem].x < 0 && storage.objects[kolvo_elem].x + 2 * storage.objects[kolvo_elem].R > 711)
-
-                if (storage.objects[kolvo_elem].y + 2*storage.objects[kolvo_elem].R> 420)
-                    storage.objects[kolvo_elem].y = 420- 2*storage.objects[kolvo_elem].R;
-                if (storage.objects[kolvo_elem].y < 0)
-                    storage.objects[kolvo_elem].y = 0;
-                if (storage.objects[kolvo_elem].y + 2 * storage.objects[kolvo_elem].R > 420 || storage.objects[kolvo_elem].y < 0)
+                    if (storage.objects[kolvo_elem].y + 2 * storage.objects[kolvo_elem].R > 420)
+                        storage.objects[kolvo_elem].y = 420 - 2 * storage.objects[kolvo_elem].R;
+                    if (storage.objects[kolvo_elem].y < 0)
+                        storage.objects[kolvo_elem].y = 0;
+                    if (storage.objects[kolvo_elem].y + 2 * storage.objects[kolvo_elem].R > 420 || storage.objects[kolvo_elem].y < 0)
+                    {
+                        storage.objects[kolvo_elem].x += 1;
+                        storage.objects[kolvo_elem].R = 420 / 2;
+                    }
+                }
+                if(storage.objects[kolvo_elem].Class_Name() == "Triangle")
                 {
-                    storage.objects[kolvo_elem].x += 1;
-                    storage.objects[kolvo_elem].R = 420 / 2;
+                    if ((int)(storage.objects[kolvo_elem].y - 2 * storage.objects[kolvo_elem].R * Math.Sqrt(3) / 3) < 0)
+                    {
+                        storage.objects[kolvo_elem].y = (int)(2 * storage.objects[kolvo_elem].R * Math.Sqrt(3) / 3);
+                        storage.objects[kolvo_elem].polygonPoints[0] = new PointF(storage.objects[kolvo_elem].x, (int)(storage.objects[kolvo_elem].y - 2 * storage.objects[kolvo_elem].R * Math.Sqrt(3) / 3));
+                        storage.objects[kolvo_elem].polygonPoints[1] = new PointF(storage.objects[kolvo_elem].x - storage.objects[kolvo_elem].R, (int)(storage.objects[kolvo_elem].y + storage.objects[kolvo_elem].R * Math.Sqrt(3) / 3));
+                        storage.objects[kolvo_elem].polygonPoints[2] = new PointF(storage.objects[kolvo_elem].x + storage.objects[kolvo_elem].R, (int)(storage.objects[kolvo_elem].y + storage.objects[kolvo_elem].R * Math.Sqrt(3) / 3));
+                    }
+                    if ((int)(storage.objects[kolvo_elem].y + storage.objects[kolvo_elem].R * Math.Sqrt(3) / 3) > 420)
+                    {
+                        storage.objects[kolvo_elem].y = 420 - (int)(storage.objects[kolvo_elem].R * Math.Sqrt(3) / 3);
+                        storage.objects[kolvo_elem].polygonPoints[0] = new PointF(storage.objects[kolvo_elem].x, (int)(storage.objects[kolvo_elem].y - 2 * storage.objects[kolvo_elem].R * Math.Sqrt(3) / 3));
+                        storage.objects[kolvo_elem].polygonPoints[1] = new PointF(storage.objects[kolvo_elem].x - storage.objects[kolvo_elem].R, (int)(storage.objects[kolvo_elem].y + storage.objects[kolvo_elem].R * Math.Sqrt(3) / 3));
+                        storage.objects[kolvo_elem].polygonPoints[2] = new PointF(storage.objects[kolvo_elem].x + storage.objects[kolvo_elem].R, (int)(storage.objects[kolvo_elem].y + storage.objects[kolvo_elem].R * Math.Sqrt(3) / 3));
+                    }
+
+
                 }
                 Pen pen = new Pen(storage.objects[kolvo_elem].color, 4);
 
@@ -215,11 +229,16 @@ namespace Лаба_6_пробник
                 }
                 else if (storage.objects[kolvo_elem].Class_Name() == "Triangle")
                 {
-                    /*Доработать polygonPoints[0] = new PointF(this.x, (int)(this.y - 2 * R * Math.Sqrt(3) / 3));
-                polygonPoints[1] = new PointF(this.x - R, (int)(this.y + R * Math.Sqrt(3) / 3));
-                polygonPoints[2] = new PointF(this.x + R, (int)(this.y + R * Math.Sqrt(3) / 3));*/
                     Triangle Hi = (Triangle)storage.objects[kolvo_elem];
-                    graphics.DrawPolygon(pen, Hi.polygonPoints);
+                    if (storage.objects[kolvo_elem].choose == true)
+                    {
+                        graphics.DrawEllipse(pen1, storage.objects[kolvo_elem].x + storage.objects[kolvo_elem].R, storage.objects[kolvo_elem].y + storage.objects[kolvo_elem].R, 1, 1);
+                        graphics.DrawPolygon(pen1, Hi.polygonPoints); if (storage.objects[kolvo_elem].color == selected_color)
+                            graphics.DrawPolygon(pen, Hi.polygonPoints);
+                    }
+                    else
+                        graphics.DrawPolygon(pen, Hi.polygonPoints);
+                   
                 }
             }
             picture.Image = bitmap;
@@ -288,7 +307,7 @@ namespace Лаба_6_пробник
                                 }
                                 else if (storage.objects[i].Class_Name() == "Triangle")
                                 {
-                                    if (((x < storage.objects[i].polygonPoints[0].X) && (x > storage.objects[i].polygonPoints[1].X) && ((y > storage.objects[i].polygonPoints[0].Y) && (y < storage.objects[i].polygonPoints[1].Y)) && ((x > storage.objects[i].polygonPoints[1].X) && (x < storage.objects[i].polygonPoints[2].X)) && ((x < storage.objects[i].polygonPoints[2].X) && (x > storage.objects[i].polygonPoints[0].X)) && ((y < storage.objects[i].polygonPoints[2].Y) && (y > storage.objects[i].polygonPoints[0].Y))))
+                                    if ((((x < storage.objects[i].polygonPoints[0].X) && (x > storage.objects[i].polygonPoints[1].X) && ((y > storage.objects[i].polygonPoints[0].Y) && (y < storage.objects[i].polygonPoints[1].Y))) || (((x < storage.objects[i].polygonPoints[2].X) && (x > storage.objects[i].polygonPoints[0].X)) && ((y < storage.objects[i].polygonPoints[2].Y) && (y > storage.objects[i].polygonPoints[0].Y)))))
                                     {
                                         storage.objects[i].color = selected_color;
                                         MyPaint(i, ref storage);
@@ -301,6 +320,11 @@ namespace Лаба_6_пробник
                     {
                         int x = e.X - krug.R;
                         int y = e.Y - krug.R;
+                        if(krug.Class_Name() == "Triangle")
+                        {
+                             x = e.X;
+                             y = e.Y;
+                        }
                         Remove_Selection(ref storage);
                         for (int i = 0; i < sizeStorage; i++)
                             if (!storage.proverka(i))
@@ -325,7 +349,7 @@ namespace Лаба_6_пробник
                                 }
                                 else if (storage.objects[i].Class_Name() == "Triangle")
                                 {
-                                    if ((x - storage.objects[i].x) * (x - storage.objects[i].x) + (y - storage.objects[i].y) * (y - storage.objects[i].y) <= storage.objects[i].R * storage.objects[i].R)
+                                    if ((((x < storage.objects[i].polygonPoints[0].X) && (x > storage.objects[i].polygonPoints[1].X) && ((y > storage.objects[i].polygonPoints[0].Y) && (y < storage.objects[i].polygonPoints[1].Y))) || (((x < storage.objects[i].polygonPoints[2].X) && (x > storage.objects[i].polygonPoints[0].X)) && ((y < storage.objects[i].polygonPoints[2].Y) && (y > storage.objects[i].polygonPoints[0].Y)))))
                                     {
                                         storage.objects[i].choose = true;
                                         MyPaint(i, ref storage);
@@ -333,6 +357,7 @@ namespace Лаба_6_пробник
                                     }
                                 }
                             }
+                        storage.objects[Check_In(ref storage, sizeStorage, krug.x, krug.y, krug.R)].color = selected_color;
                         storage.objects[Check_In(ref storage, sizeStorage, krug.x, krug.y,krug.R)].choose = true;
                         MyPaint(Check_In(ref storage, sizeStorage, krug.x, krug.y,krug.R), ref storage);
                         button3_Click(sender, e);
@@ -664,6 +689,27 @@ namespace Лаба_6_пробник
 
 
 
+                        }
+                        else if (e.KeyChar == (char)Keys.L)
+                        {
+                            
+                            storage.objects[norm].R += 1;
+                            storage.objects[norm].polygonPoints[0] = new PointF(storage.objects[norm].x, (int)(storage.objects[norm].y - 2 * storage.objects[norm].R * Math.Sqrt(3) / 3));
+                            storage.objects[norm].polygonPoints[1] = new PointF(storage.objects[norm].x - storage.objects[norm].R, (int)(storage.objects[norm].y + storage.objects[norm].R * Math.Sqrt(3) / 3));
+                            storage.objects[norm].polygonPoints[2] = new PointF(storage.objects[norm].x + storage.objects[norm].R, (int)(storage.objects[norm].y + storage.objects[norm].R * Math.Sqrt(3) / 3));
+                            MyPaint(norm, ref storage);
+                        }
+
+                        else if (e.KeyChar == (char)Keys.K)
+                        {
+                            
+                            storage.objects[norm].R -= 1;
+                            if (storage.objects[norm].R < 1)
+                                storage.objects[norm].R = 1;
+                            storage.objects[norm].polygonPoints[0] = new PointF(storage.objects[norm].x, (int)(storage.objects[norm].y - 2 * storage.objects[norm].R * Math.Sqrt(3) / 3));
+                            storage.objects[norm].polygonPoints[1] = new PointF(storage.objects[norm].x - storage.objects[norm].R, (int)(storage.objects[norm].y + storage.objects[norm].R * Math.Sqrt(3) / 3));
+                            storage.objects[norm].polygonPoints[2] = new PointF(storage.objects[norm].x + storage.objects[norm].R, (int)(storage.objects[norm].y + storage.objects[norm].R * Math.Sqrt(3) / 3));
+                            MyPaint(norm, ref storage);
                         }
                     }
                 }
